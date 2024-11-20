@@ -1,0 +1,19 @@
+.addTodoWrapper {
+  display: flex;
+  padding: 0.5rem;
+  margin-top: 1rem;
+}
+
+.addTodoLabel {
+  flex-shrink: 1;
+  margin: 0.5rem 1rem;
+}
+
+.addTodoInput {
+  flex-grow: 1;
+}
+
+.addTodoButton {
+  flex-shrink: 1;
+  margin: 0 0 0 1rem;
+}

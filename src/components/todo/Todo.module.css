@@ -1,0 +1,15 @@
+.todoItem {
+  border-bottom: 1px solid #ccc;
+  padding: 1rem;
+  display: flex;
+  color: #333;
+  text-decoration: none;
+}
+
+.inputWrapper {
+  margin-right: 1rem;
+}
+
+.todoName {
+  flex-grow: 1;
+}
