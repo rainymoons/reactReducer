@@ -1,4 +1,5 @@
-import { createContext, useState } from "react";
+import { createContext, useReducer } from "react";
+import { todoReducers } from "../reducers/todoReducer";
 // state interface (context)
 // 1. state의 원형 제작
 //  1-1. state를 변경시킬 함수들의 원형을 제작. (객체 리터럴 형태로)
@@ -8,6 +9,7 @@ export const TodoContext = createContext({
   // event를 받는 이유? checkbox를 체크 / 체크해제 했을 때, 해당 checkbox값을 얻어 오기 위해서.
   contextDone(event) {},
   contextAddTodo(task, dueDate, alertRef) {},
+  // reducer를 만들기 위해 두개 구현
 });
 
 // 2. state interface implementation (Contextprovider)
@@ -15,13 +17,16 @@ export const TodoContext = createContext({
 export function TodoContextProvider({ children }) {
   // 왜 여기서 state를 또 만드냐? 위에서 만든건 인터페이스
   // 가져야 하는 초기값은 배열.
-  const [todo, setTodo] = useState([
-    //{ id: 0, isDone: true, task: "ABC", dueDate: "2024-11-20" },
-  ]); // 여기에 todo-Item을 넣어서 테스트를 한번 해본다. 근데 안됌
+  //const [todo, setTodo] = useState([
+  //{ id: 0, isDone: true, task: "ABC", dueDate: "2024-11-20" },
+  //]); // 여기에 todo-Item을 넣어서 테스트를 한번 해본다. 근데 안됌
   // useState를 쓸 수 없는 곳에다가 쓴 것. 위의 context를 공급해주는게 TodoContextProvider. 공급 받을 컴포넌트에서 TodoContextProvider로 적어놨음.
   // 이걸 쓸수 있는 애는 Todo와 AddTodo. provider를 useContext로 쓰고 싶으면 provider를 공급받는 컴포넌트를 새로 만들어야 함. 내가 주는 컴포넌트에서는 못씀.
 
   // 이렇게 state를 만들면 위에 넣어준다.
+
+  // reducer를 쓰겠다. []는 reducer가 관리할 기본 값. 이 기본값이 todoReducer의 state로 전달됨.(비어있음)
+  const [todo, todoDispatcher] = useReducer(todoReducers, []); // dispather가 todoReducer 호출하고 action 정보를 전달함. setTodo 대체.
 
   const contextImplementation = {
     // app.js에서 가져옴.
@@ -29,16 +34,11 @@ export function TodoContextProvider({ children }) {
     contextDone(event) {
       const checkedDoneId = parseInt(event.target.value);
       const isChecked = event.target.checked;
-
-      // state를 setTodoList가 아닌 setTodo가 호출되도록 변경
-      setTodo((prevTodoItemList) =>
-        prevTodoItemList.map((todo) => {
-          if (todo.id === checkedDoneId) {
-            todo.isDone = isChecked; // 체크를 했던 todo는 값이 바뀌어서 반환된다.
-          }
-          return todo;
-        })
-      );
+      // dispatcher 등록
+      todoDispatcher({
+        type: "DONE",
+        payload: { id: checkedDoneId, isChecked },
+      });
     },
     contextAddTodo(task, dueDate, alertRef) {
       let alertMessages = [];
@@ -57,20 +57,8 @@ export function TodoContextProvider({ children }) {
         //alert("내용을 입력해야 합니다.");
         return;
       }
-
-      // 값을 가져와서 setTodoList 호출. -> 새롭게 추가한것만 배열에 넣어야 함.
-      //prevTodoList최신의 스테이트 -> 배열로 만들어야함.
-      // 객체 리터럴로 넣어줌. 그렇게 만들었으니까.
-      // 앞에 넣어주면 배열의 가장 앞에 들어감. 반대의 경우 제일 밑.
-      setTodo((prevTodoList) => [
-        {
-          id: prevTodoList.length, // 0-1-2-3-4-5 순으로 증가하므로 length로 준다.
-          isDone: false,
-          task, // value가 task로 같으므로 생략 가능
-          dueDate, // 마찬가지로 생략 가능
-        },
-        ...prevTodoList,
-      ]);
+      // key value가 동일하기 때문에 : task, :dueDate 생략
+      todoDispatcher({ type: "ADD", payload: { task, dueDate } });
     },
   };
 
