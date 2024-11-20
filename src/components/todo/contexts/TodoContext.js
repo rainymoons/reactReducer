@@ -55,10 +55,11 @@ export function TodoContextProvider({ children }) {
         // show에 전달할 배열을 만들어서 넣어줘야 함.
         alertRef.current.show(alertMessages);
         //alert("내용을 입력해야 합니다.");
-        return;
+        return false;
       }
       // key value가 동일하기 때문에 : task, :dueDate 생략
       todoDispatcher({ type: "ADD", payload: { task, dueDate } });
+      return true;
     },
   };
 

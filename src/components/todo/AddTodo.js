@@ -18,7 +18,12 @@ export default function AddTodo() {
     const dueDate = dueDateRef.current.value;
 
     // TodoContext에 있는 contextAddTodo를 호출.
-    contextAddTodo(task, dueDate, alertRef);
+    const result = contextAddTodo(task, dueDate, alertRef);
+
+    if (result) {
+      taskRef.current.value = "";
+      dueDateRef.current.value = "";
+    }
 
     // 입력값 초기화
     taskRef.current.value = "";
